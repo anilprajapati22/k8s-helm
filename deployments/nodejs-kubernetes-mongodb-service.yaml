@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: nodejs-kubernetes-mongodb
+  name: nodejs-kubernetes-mongodb
+  namespace: node-mongo-app
+spec:
+  type: NodePort
+  ports:
+    - name: "27017"
+      port: 27017
+      targetPort: 27017
+  selector:
+    io.kompose.service: nodejs-kubernetes-mongodb

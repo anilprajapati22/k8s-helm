@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: nodejs-kubernetes
+  name: nodejs-kubernetes
+  namespace: node-mongo-app
+spec:
+  replicas: {{ .Values.sgnons.replicas }}
+  selector:
+    matchLabels:
+      io.kompose.service: nodejs-kubernetes
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: nodejs-kubernetes
+    spec:
+      containers:
+        - env:
+            - name: MONGO_DB_URL
+              value: mongodb://nodejs-kubernetes-mongodb:27017/nodejs-kubernetes
+            - name: PORT
+              value: "80"
+          image: docker.io/anilprajapati18/flask-mongo-app:v1
+          name: nodejs-kubernetes
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          resources: {}
+      restartPolicy: Always
+
