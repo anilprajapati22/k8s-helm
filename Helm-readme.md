@@ -102,53 +102,153 @@ Helm uses Go templates to allow for dynamic content in Kubernetes YAML manifests
         app: {{ quote .Values.appName }}
     ```
 
-#### Loops (`range`)
-- **Description**: Loops allow you to iterate over lists or maps in your templates.
-  - Example:
-    ```yaml
-    env:
-      {{- range .Values.env }}
-      - name: "{{ .name }}"
-        value: "{{ .value }}"
-      {{- end }}
-    ```
+### Helm Control Structures - Notes
 
-#### Conditional Logic (`if`, `else`, `else if`)
-- **Description**: Helm templates support conditional logic to render different parts of YAML based on conditions.
-  - Example:
-    ```yaml
-    {{- if .Values.enableFeature }}
-    apiVersion: v1
-    kind: ConfigMap
-    metadata:
-      name: feature-config
-    {{- else }}
-    apiVersion: v1
-    kind: ConfigMap
-    metadata:
-      name: default-config
-    {{- end }}
-    ```
-
-#### `with`
-- **Description**: `with` is used to modify the scope, making it easier to access nested variables.
-  - Example:
-    ```yaml
-    {{- with .Values.service }}
-    ports:
-      - name: http
-        port: {{ .port }}
-    {{- end }}
-    ```
-
-#### Pipelines (`|`)
-- **Description**: Allows chaining of functions.
-  - Example: Convert a string to lowercase.
-    ```yaml
-    kind: {{ .Values.kind | lower }}
-    ```
+Helm charts utilize control structures to manage the flow of template rendering, allowing for conditional logic and loops to create dynamic Kubernetes manifests. This section summarizes the control structures available in Helm templates.
 
 ---
+
+### Control Structures in Helm Templates
+
+1. **If Statements**
+
+   - **Description**: Conditional logic to determine if a section of the template should be rendered based on a condition.
+   - **Syntax**:
+     ```yaml
+     {{ if condition }}
+       # Template code
+     {{ end }}
+     ```
+   - **Example**:
+     ```yaml
+     {{ if .Values.enableFeature }}
+     apiVersion: v1
+     kind: ConfigMap
+     metadata:
+       name: feature-config
+     {{ end }}
+     ```
+
+2. **Else Statements**
+
+   - **Description**: Provides an alternative block to render when the `if` condition evaluates to false.
+   - **Syntax**:
+     ```yaml
+     {{ if condition }}
+       # Template code for true
+     {{ else }}
+       # Template code for false
+     {{ end }}
+     ```
+   - **Example**:
+     ```yaml
+     {{ if .Values.enableFeature }}
+     apiVersion: v1
+     kind: ConfigMap
+     metadata:
+       name: feature-config
+     {{ else }}
+     apiVersion: v1
+     kind: ConfigMap
+     metadata:
+       name: default-config
+     {{ end }}
+     ```
+
+3. **Else If Statements**
+
+   - **Description**: Adds multiple conditional checks in a chain, allowing for more than two potential code paths.
+   - **Syntax**:
+     ```yaml
+     {{ if condition1 }}
+       # Template code for condition1
+     {{ else if condition2 }}
+       # Template code for condition2
+     {{ else }}
+       # Template code for all other cases
+     {{ end }}
+     ```
+   - **Example**:
+     ```yaml
+     {{ if .Values.environment }}
+     apiVersion: v1
+     kind: ConfigMap
+     metadata:
+       name: {{ .Values.environment }}-config
+     {{ else if .Values.production }}
+     apiVersion: v1
+     kind: ConfigMap
+     metadata:
+       name: production-config
+     {{ else }}
+     apiVersion: v1
+     kind: ConfigMap
+     metadata:
+       name: default-config
+     {{ end }}
+     ```
+
+4. **Range Loops**
+
+   - **Description**: Iterates over lists or maps, executing the contained template code for each item.
+   - **Syntax**:
+     ```yaml
+     {{ range .Values.list }}
+       # Template code using the current item
+     {{ end }}
+     ```
+   - **Example**:
+     ```yaml
+     env:
+     {{- range .Values.env }}
+       - name: {{ .name }}
+         value: {{ .value }}
+     {{- end }}
+     ```
+
+5. **With Statement**
+
+   - **Description**: Changes the scope within the template, allowing easier access to nested properties.
+   - **Syntax**:
+     ```yaml
+     {{ with .Values.someNestedValue }}
+       # Access nested properties directly
+     {{ end }}
+     ```
+   - **Example**:
+     ```yaml
+     {{ with .Values.service }}
+     ports:
+       - port: {{ .port }}
+     {{ end }}
+     ```
+
+6. **Template Functions**
+
+   - **Description**: Functions can be used within control structures to manipulate data.
+   - **Example**:
+     ```yaml
+     {{ if eq .Values.environment "production" }}
+     apiVersion: v1
+     kind: ConfigMap
+     metadata:
+       name: prod-config
+     {{ end }}
+     ```
+
+---
+
+### Usage Notes
+
+- **Indentation**: Maintain consistent indentation for readability, especially in nested structures.
+- **Whitespace Control**: Use `{{-` or `-}}` to control whitespace when necessary.
+- **Template Logic**: Use comments (e.g., `{{/* comment */}}`) for clarity in complex templates.
+
+---
+
+### Summary
+
+These control structures enhance the flexibility and power of Helm templates, enabling you to create dynamic and adaptable Kubernetes configurations. By leveraging these constructs, you can implement complex logic based on your Helm chart's values and context, leading to more robust application deployments.
 
 ### Using Values in Templates
 
